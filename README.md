@@ -52,6 +52,16 @@ You also need to start a few services to make sure everything works fine (This a
    sudo systemctl enable nvidia-{suspend,resume,hibernate,persistenced}
    ```
 
+## Touchpad Gestures
+
+For Touchpad gestures to work under X11, you can use a project called Fusuma. First, install the required dependencies for Fusuma and then install Fusuma itself. You can find Fusuma [here](https://github.com/iberianpig/fusuma).
+
+My config file for KDE desktop is located in the "Touchpad-Fixes" directory. Simply copy the contents to your `$HOME` directory. To use my config file you have to install "xdotool" and two other fusuma plugins:
+
+- [fusuma-plugin-wmctrl](https://github.com/iberianpig/fusuma-plugin-wmctrl)
+- [fusuma-plugin-keypress](https://github.com/iberianpig/fusuma-plugin-keypress)
+
+
 ## Power Saving
 
 To save additional power on your laptop, you can apply the following settings:
