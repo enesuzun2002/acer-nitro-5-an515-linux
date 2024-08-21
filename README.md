@@ -1,34 +1,24 @@
-# Acer Nitro 5 AN515-44 Linux Fixes
+# Acer Nitro 5 (AN515) Linux Fixes
 
-This project is dedicated to providing fixes and optimizations for the Acer Nitro 5 AN515-44 laptop running Linux. It addresses various issues related to audio, microphone settings, CPU performance, HDMI functionality, and power-saving. Additionally, this guide assumes you are using the "noise-suppression-for-voice" Git project for audio noise suppression and the "auto-cpufreq" project for CPU optimization.
+This project is dedicated to providing fixes and optimizations for the Acer Nitro 5 (AN515) laptop running Linux. It addresses various issues related to audio, microphone settings, CPU performance, HDMI functionality, and power-saving. Additionally, this guide assumes you are using the "noise-suppression-for-voice" Git project for audio noise suppression and the "auto-cpufreq" project for CPU optimization.
 
-## Audio Fixes
+## Audio - Wifi Fixes
 
-To improve audio quality and enable noise suppression on your Acer Nitro 5 AN515-44 laptop running Linux, follow these steps:
+To improve audio quality and enable power saving for wifi on your Acer Nitro 5 (AN515) laptop running Linux, follow these steps:
 
-1. **Install noise-suppression-for-voice**: You can find the "noise-suppression-for-voice" Git project [here](https://github.com/werman/noise-suppression-for-voice). Download the latest release and place it under `$HOME/Tools`.
-
-2. **Microphone Settings**: Adjust your microphone settings using ALSA Mixer.
-   ![Microphone Settings](Audio-Fixes/alsamixer-mic.png)
-
-   - **Note**: You should configure these settings every time you log in, as they may reset.
-
-3. **Effects Configuration**: Copy the `.config` folder from the "Audio-Fixes" directory to your `$HOME` directory and restart Pipewire by running:
-
-   ```bash
-   systemctl --user restart pipewire.service
+1. **Give necessary permissions to script**:
+    ```bash
+   chmod +x install.sh
    ```
 
-   Then, select "Echo-Cancel Sink" for the speaker and "Echo-Cancel Source" for the microphone.
-   ![Audio Devices](Audio-Fixes/audio-devices.png)
-
-   - The configuration should be read automatically on login, eliminating the need to restart Pipewire every time.
-
-4. **Headset Microphone**: Copy the `etc` folder from the "Audio-Fixes" directory to your `/` directory. This sets a model for snd_hda_intel module.
+2. **Run script**: Run script and answer prompts to add fixes you need.
+   ```bash
+   ./install.sh
+   ```
 
 ## CPU Optimization
 
-For optimizing CPU performance on the Acer Nitro 5 AN515-44 laptop, I use the "auto-cpufreq" utility. This tool manages CPU frequency and power states to enhance performance and power efficiency.
+For optimizing CPU performance on the Acer Nitro 5 (AN515) laptop, I use the "auto-cpufreq" utility. This tool manages CPU frequency and power states to enhance performance and power efficiency.
 
 1. **Install auto-cpufreq**: You can find the "auto-cpufreq" project [here](https://github.com/AdnanHodzic/auto-cpufreq). Follow the installation instructions provided in the project's README.
 
@@ -72,8 +62,10 @@ To save additional power on your laptop, you can apply the following settings:
    nmi_watchdog=0
    ```
 
-2. Copy the folder from "Wifi-Fixes" to enable power-saving for the Wi-Fi card.
+Please note that this project is meant to provide guidance and solutions for common issues faced by Acer Nitro 5 (AN515) laptop users running Linux. It's important to back up your data and exercise caution when making system changes.
 
-Please note that this project is meant to provide guidance and solutions for common issues faced by Acer Nitro 5 AN515-44 laptop users running Linux. It's important to back up your data and exercise caution when making system changes.
+Feel free to contribute to this project by submitting pull requests with additional fixes or improvements to benefit the Acer Nitro 5 (AN515) Linux community.
 
-Feel free to contribute to this project by submitting pull requests with additional fixes or improvements to benefit the Acer Nitro 5 AN515-44 Linux community.
+## TODO
+- Make the script cover all specific fixes in this repository
+- Add an uninstaller script
