@@ -2,7 +2,7 @@
 
 This project is dedicated to providing fixes and optimizations for the Acer Nitro 5 (AN515) laptop running Linux. It addresses various issues related to audio, microphone settings, CPU performance, HDMI functionality, and power-saving. Additionally, this guide assumes you are using the "noise-suppression-for-voice" Git project for audio noise suppression and the "auto-cpufreq" project for CPU optimization.
 
-## Audio - Wifi Fixes
+## Audio - Wifi Fixes and Power Management
 
 To improve audio quality and enable power saving for wifi on your Acer Nitro 5 (AN515) laptop running Linux, follow these steps:
 
@@ -14,18 +14,6 @@ To improve audio quality and enable power saving for wifi on your Acer Nitro 5 (
 2. **Run script**: Run script and answer prompts to add fixes you need.
    ```bash
    ./install.sh
-   ```
-
-## CPU Optimization
-
-For optimizing CPU performance on the Acer Nitro 5 (AN515) laptop, I use the "auto-cpufreq" utility. This tool manages CPU frequency and power states to enhance performance and power efficiency.
-
-1. **Install auto-cpufreq**: You can find the "auto-cpufreq" project [here](https://github.com/AdnanHodzic/auto-cpufreq). Follow the installation instructions provided in the project's README.
-
-2. **Usage**: Once installed, it should start and work automatically. You can check its status and statistics by running:
-
-   ```bash
-   auto-cpufreq --stats
    ```
 
 ## HDMI Fixes
