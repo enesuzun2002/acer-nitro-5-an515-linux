@@ -45,12 +45,12 @@ if [ "$1" == "true" ]; then
     fi
 
     # Disable NVIDIA GPU
-    echo "Disabling NVIDIA GPU..."
-    if /usr/local/bin/graphic_card.sh off; then
-        echo "NVIDIA GPU disabled successfully."
-    else
-        echo "Failed to disable NVIDIA GPU."
-    fi
+    #echo "Disabling NVIDIA GPU..."
+    #if /usr/local/bin/graphic_card.sh off; then
+    #    echo "NVIDIA GPU disabled successfully."
+    #else
+    #    echo "Failed to disable NVIDIA GPU."
+    #fi
 
     # Set values for AMDGPU
     echo "Setting values for AMDGPU..."
@@ -86,12 +86,12 @@ elif [ "$1" == "false" ]; then
     fi
 
     # Enable NVIDIA GPU
-    echo "Enabling NVIDIA GPU..."
-    if /usr/local/bin/graphic_card.sh on; then
-        echo "NVIDIA GPU enabled successfully."
-    else
-        echo "Failed to enable NVIDIA GPU."
-    fi
+    #echo "Enabling NVIDIA GPU..."
+    #if /usr/local/bin/graphic_card.sh on; then
+    #    echo "NVIDIA GPU enabled successfully."
+    #else
+    #    echo "Failed to enable NVIDIA GPU."
+    #fi
 
     # Set values for AMDGPU
     echo "Setting values for AMDGPU..."
