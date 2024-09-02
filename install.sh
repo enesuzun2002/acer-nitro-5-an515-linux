@@ -181,7 +181,6 @@ if [[ $REPLY =~ ^[yY]$ ]]; then
     # Set required permissions for scripts
     echo "Setting required permissions for scripts..."
     run_sudo "chmod +x /usr/lib/systemd/system-sleep/00powersave" "Failed to set executable permission for 00powersave."
-    run_sudo "chmod +x /usr/local/bin/graphic_card.sh" "Failed to set executable permission for graphic_card.sh."
     run_sudo "chmod +x /usr/local/bin/power_save.sh" "Failed to set executable permission for power_save.sh."
 
     echo "Installation completed successfully!"
