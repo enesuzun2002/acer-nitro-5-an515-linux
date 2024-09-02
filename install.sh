@@ -162,26 +162,29 @@ if [[ $REPLY =~ ^[yY]$ ]]; then
     echo "Copying files..."
     read -s -p "[sudo] password for $USER: " PASSWORD
     echo
-    echo $PASSWORD | sudo -S cp ./Power-Management/etc/modules-load.d/* /etc/modules-load.d/ > /dev/null 2>&1
-    echo $PASSWORD | sudo -S cp ./Power-Management/etc/udev/rules.d/* /etc/udev/rules.d/ > /dev/null 2>&1
-    echo $PASSWORD | sudo -S cp ./Power-Management/usr/lib/systemd/system-sleep/00powersave /usr/lib/systemd/system-sleep/00powersave > /dev/null 2>&1
-    echo $PASSWORD | sudo -S cp ./Power-Management/usr/local/bin/* /usr/local/bin/ > /dev/null 2>&1
 
-    if [ $? -ne 0 ]; then
-        echo "Error copying files!"
-        exit 1
-    else
-        echo "Setting required permissions for scripts..."
-        echo $PASSWORD | sudo -S chmod +x /usr/lib/systemd/system-sleep/00powersave > /dev/null 2>&1
-        echo $PASSWORD | sudo -S chmod +x /usr/local/bin/graphic_card.sh > /dev/null 2>&1
-        echo $PASSWORD | sudo -S chmod +x /usr/local/bin/power_save.sh > /dev/null 2>&1
+    # Function to handle sudo commands
+    run_sudo() {
+        echo $PASSWORD | sudo -S $1 > /dev/null 2>&1
         if [ $? -ne 0 ]; then
-            echo "Error setting permission for scripts!"
+            echo "Error: $2"
             exit 1
-        else
-            echo "Installation completed successfully!"
         fi
-    fi
+    }
+
+    # Copy files and handle errors
+    run_sudo "cp ./Power-Management/etc/modules-load.d/* /etc/modules-load.d/" "Failed to copy modules-load.d files."
+    run_sudo "cp ./Power-Management/etc/udev/rules.d/* /etc/udev/rules.d/" "Failed to copy udev rules."
+    run_sudo "cp ./Power-Management/usr/lib/systemd/system-sleep/00powersave /usr/lib/systemd/system-sleep/00powersave" "Failed to copy system-sleep script."
+    run_sudo "cp ./Power-Management/usr/local/bin/* /usr/local/bin/" "Failed to copy local bin scripts."
+
+    # Set required permissions for scripts
+    echo "Setting required permissions for scripts..."
+    run_sudo "chmod +x /usr/lib/systemd/system-sleep/00powersave" "Failed to set executable permission for 00powersave."
+    run_sudo "chmod +x /usr/local/bin/graphic_card.sh" "Failed to set executable permission for graphic_card.sh."
+    run_sudo "chmod +x /usr/local/bin/power_save.sh" "Failed to set executable permission for power_save.sh."
+
+    echo "Installation completed successfully!"
 else
     echo "Installation cancelled."
 fi

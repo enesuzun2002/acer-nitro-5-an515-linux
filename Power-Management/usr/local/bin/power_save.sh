@@ -44,6 +44,12 @@ if [ "$1" == "true" ]; then
         fi
     fi
 
+    if echo "powersave" | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; then
+        echo "CPU governor set to powersave."
+    else
+        echo "Failed to set cpu governor."
+    fi
+
     # Disable NVIDIA GPU
     #echo "Disabling NVIDIA GPU..."
     #if /usr/local/bin/graphic_card.sh off; then
@@ -83,6 +89,12 @@ elif [ "$1" == "false" ]; then
         else
             echo "Failed to set power limits."
         fi
+    fi
+
+    if echo "schedutil" | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; then
+        echo "CPU governor set to schedutil."
+    else
+        echo "Failed to set cpu governor."
     fi
 
     # Enable NVIDIA GPU
