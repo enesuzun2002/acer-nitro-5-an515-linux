@@ -51,12 +51,12 @@ if [ "$1" == "true" ]; then
     fi
 
     # Disable NVIDIA GPU
-    echo "Disabling NVIDIA GPU..."
-    if nvidia-smi -i 0000:01:00.0 -pm 0 && nvidia-smi drain -p 0000:01:00.0 -m 1; then
-        echo "NVIDIA GPU disabled successfully."
-    else
-        echo "Failed to disable NVIDIA GPU."
-    fi
+    #echo "Disabling NVIDIA GPU..."
+    #if nvidia-smi -i 0000:01:00.0 -pm 0 && nvidia-smi drain -p 0000:01:00.0 -m 1; then
+    #    echo "NVIDIA GPU disabled successfully."
+    #else
+    #    echo "Failed to disable NVIDIA GPU."
+    #fi
 
     # Set values for AMDGPU
     echo "Setting values for AMDGPU..."
@@ -98,12 +98,12 @@ elif [ "$1" == "false" ]; then
     fi
 
     # Enable NVIDIA GPU
-    echo "Enabling NVIDIA GPU..."
-    if nvidia-smi drain -p 0000:01:00.0 -m 0 && nvidia-smi -i 0000:01:00.0 -pm 1; then
-        echo "NVIDIA GPU enabled successfully."
-    else
-        echo "Failed to enable NVIDIA GPU."
-    fi
+    #echo "Enabling NVIDIA GPU..."
+    #if nvidia-smi drain -p 0000:01:00.0 -m 0 && nvidia-smi -i 0000:01:00.0 -pm 1; then
+    #    echo "NVIDIA GPU enabled successfully."
+    #else
+    #    echo "Failed to enable NVIDIA GPU."
+    #fi
 
     # Set values for AMDGPU
     echo "Setting values for AMDGPU..."
