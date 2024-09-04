@@ -1,76 +1,25 @@
 #!/bin/bash
 
-RNNOISE_VER=v1.10
-
 # Check if the user wants to proceed
-read -p "Do you want to download and install noise suppression and echo canceller for voice? (y/n) " -r
+read -p "Do you want enable echo cancelling and noise suppression for voice? (y/n) " -r
 if [[ $REPLY =~ ^[yY]$ ]]; then
-    # Download the file from GitHub
-    echo "Downloading the file..."
-    wget https://github.com/werman/noise-suppression-for-voice/releases/download/$RNNOISE_VER/linux-rnnoise.zip > /dev/null 2>&1
+    # Copy the config file from script's directory to $HOME/.config/
+    mkdir -p $HOME/.config/pipewire/pipewire.conf.d/
+    cp ./Audio-Fixes/.config/pipewire/pipewire.conf.d/99-input-echo-cancel.conf $HOME/.config/pipewire/pipewire.conf.d/99-input-echo-cancel.conf > /dev/null 2>&1
 
     if [ $? -ne 0 ]; then
-        echo "Error downloading the file!"
-        exit 1
+        echo "Error copying config file!"
     else
-        echo "Downloaded successfully."
+        echo "Config file copied successfully."
 
-        # Unzip the downloaded file to /tmp directory
-        echo "Unzipping the file..."
-        unzip linux-rnnoise.zip -d /tmp > /dev/null 2>&1
-
+        echo "Restarting pipewire..."
+        systemctl --user restart wireplumber pipewire pipewire-pulse > /dev/null 2>&1
         if [ $? -ne 0 ]; then
-            echo "Error unzipping the file!"
-            rm linux-rnnoise.zip
-            exit 1
+            echo "Error restarting pipewire service!"
         else
-            echo "Unzipped successfully."
-
-            # Copy the contents of /tmp/rnnoise folder to $HOME/.local/share/enesuzun2002 directory
-            echo "Copying files..."
-            mkdir -p $HOME/.local/share/enesuzun2002/linux-rnnoise
-            cp -r /tmp/linux-rnnoise/* $HOME/.local/share/enesuzun2002/linux-rnnoise > /dev/null 2>&1
-
-            if [ $? -ne 0 ]; then
-                echo "Error copying files!"
-                rm -rf linux-rnnoise.zip /tmp/linux-rnnoise
-                exit 1
-            else
-                echo "Copied successfully."
-
-                # Copy the config file from script's directory to $HOME/.local/share/enesuzun2002 directory
-                mkdir -p $HOME/.config/pipewire/pipewire.conf.d/
-                cp ./Audio-Fixes/.config/pipewire/pipewire.conf.d/98-input-echo-cancel.conf $HOME/.config/pipewire/pipewire.conf.d/98-input-echo-cancel.conf > /dev/null 2>&1
-                cp ./Audio-Fixes/.config/pipewire/pipewire.conf.d/99-input-denoising.conf $HOME/.config/pipewire/pipewire.conf.d/99-input-denoising.conf > /dev/null 2>&1
-
-                if [ $? -ne 0 ]; then
-                    echo "Error copying config file!"
-                    rm linux-rnnoise.zip /tmp/rnnoise.zip /tmp/rnnoise
-                    exit 1
-                else
-                    echo "Config file copied successfully."
-
-                    # Clean up
-                    rm linux-rnnoise.zip
-                    rm -rf /tmp/rnnoise > /dev/null 2>&1
-
-                    if [ $? -ne 0 ]; then
-                        echo "Error cleaning up!"
-                        exit 1
-                    else
-                        systemctl --user restart pipewire.service > /dev/null 2>&1
-                        if [ $? -ne 0 ]; then
-                            echo "Error restarting pipewire service!"
-                            exit 1
-                        else
-                            echo "Installation completed successfully!"
-                        fi
-                    fi
-                fi
-            fi
+            echo "Installation completed successfully!"
         fi
     fi
-
 else
     echo "Installation cancelled."
 fi
