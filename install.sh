@@ -52,7 +52,7 @@ if [[ $REPLY =~ ^[yY]$ ]]; then
     echo "Adding configuration to alsa-base.conf..."
     read -s -p "[sudo] password for $USER: " PASSWORD
     echo
-    echo $PASSWORD | sudo -S sh -c 'echo -e "options snd-hda-intel model=auto,dell-headset-multi" >> /etc/modprobe.d/alsa-base.conf'
+    echo $PASSWORD | sudo -S sh -c 'echo "options snd-hda-intel model=auto,dell-headset-multi" >> /etc/modprobe.d/alsa-base.conf'
     if [ $? -ne 0 ]; then
         echo "Error configuration to alsa-base.conf!"
         exit 1
@@ -76,7 +76,7 @@ if [[ $REPLY =~ ^[yY]$ ]]; then
         echo "Adding configuration to alsa-base.conf..."
         read -s -p "[sudo] password for $USER: " PASSWORD
         echo
-        echo $PASSWORD | sudo -S sh -c 'echo -e "options snd-hda-intel power_save=0" >> /etc/modprobe.d/alsa-base.conf'
+        echo $PASSWORD | sudo -S sh -c 'echo "options snd-hda-intel power_save=0" >> /etc/modprobe.d/alsa-base.conf'
         if [ $? -ne 0 ]; then
             echo "Error configuration to alsa-base.conf!"
             exit 1
