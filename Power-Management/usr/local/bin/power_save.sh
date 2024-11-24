@@ -37,7 +37,7 @@ if [ "$1" == "true" ]; then
         echo "ryzenadj could not be found!"
     else
         echo "Successfully set power limits for CPU."
-        if ryzenadj --stapm-limit=10000 --fast-limit=10000 --slow-limit=6000 --tctl-temp=60; then
+        if ryzenadj --stapm-limit=12000 --fast-limit=12000 --slow-limit=9000 --tctl-temp=60; then
             echo "Power limits set successfully."
         else
             echo "Failed to set power limits."
