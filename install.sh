@@ -36,50 +36,36 @@ else
     echo "Installation cancelled."
 fi
 
-read -p "Do you want to configure and save custom alsamixer values for mic restore on boot? (y/n) " -r
+read -p "Do you want to enable automatic custom mic levels restore on boot (60% mic, 20% boost)? (y/n) " -r
 if [[ $REPLY =~ ^[yY]$ ]]; then
-    echo "Opening alsamixer..."
-    echo "Instructions: Adjust your microphone levels, capture settings, and mute states. Press ESC to save and close."
-    sleep 2
-    alsamixer
-
-    echo "Saving your custom soundcard state..."
-    mkdir -p $HOME/.config/
-    alsactl --file $HOME/.config/asound.state store
-    
-    if [ $? -ne 0 ]; then
-        echo "Error saving custom ALSA state!"
-        exit 1
-    else
-        echo "Creating systemd user service for reliable ALSA restore..."
-        mkdir -p $HOME/.config/systemd/user/
-        cat << 'EOF' > $HOME/.config/systemd/user/alsa-restore-custom.service
+    echo "Creating systemd user service for reliable, native mic restore..."
+    mkdir -p $HOME/.config/systemd/user/
+    cat << 'EOF' > $HOME/.config/systemd/user/alsa-restore-custom.service
 [Unit]
 Description=Restore custom ALSA state for mic
 After=wireplumber.service pipewire.service
 
 [Service]
 Type=oneshot
-ExecStart=-/usr/bin/alsactl -F --file %h/.config/asound.state restore
+ExecStart=/usr/bin/bash -c "sleep 5 && wpctl set-volume @DEFAULT_AUDIO_SOURCE@ 0.60 && amixer -c 0 sset 'Capture' 60%% || true && amixer -c 0 sset 'Mic Boost' 2 || true && amixer -c 0 sset 'Internal Mic' 22%% || true && amixer -c 0 sset 'Internal Mic Boost' 2 || true && amixer -c 0 sset 'Headset Mic' 22%% || true && amixer -c 0 sset 'Headset Mic Boost' 2 || true && amixer -c 0 sset 'Headphone Mic' 0%% || true && amixer -c 0 sset 'Headphone Mic Boost' 0 || true"
 RemainAfterExit=yes
 
 [Install]
 WantedBy=default.target
 EOF
-        systemctl --user daemon-reload
-        
-        # Enable and start the service, capturing stderr and stdout for debugging
-        SYSTEMD_OUTPUT=$(systemctl --user enable --now alsa-restore-custom.service 2>&1)
-        if [ $? -ne 0 ]; then
-            echo "Error setting up systemd service!"
-            echo "Debugging Details: $SYSTEMD_OUTPUT"
-            exit 1
-        else
-            echo "Installation completed successfully!"
-        fi
+    systemctl --user daemon-reload
+    
+    # Enable and start the service, capturing stderr and stdout for debugging
+    SYSTEMD_OUTPUT=$(systemctl --user enable --now alsa-restore-custom.service 2>&1)
+    if [ $? -ne 0 ]; then
+        echo "Error setting up systemd service!"
+        echo "Debugging Details: $SYSTEMD_OUTPUT"
+        exit 1
+    else
+        echo "Mic restore service installed and activated successfully!"
     fi
 else
-    echo "Custom ALSA restore configuration cancelled."
+    echo "Custom mic restore configuration cancelled."
 fi
 
 read -p "Do you want to add fix for headset-mic? (y/n) " -r
@@ -92,6 +78,23 @@ if [[ $REPLY =~ ^[yY]$ ]]; then
         echo "Error configuration to alsa-base.conf!"
         exit 1
     else
+        echo "Configuration added successfully."
+        echo "Regenerating initramfs to apply audio driver parameters..."
+        if command -v mkinitcpio &>/dev/null; then
+            echo "Using mkinitcpio..."
+            echo "$PASSWORD" | sudo -S mkinitcpio -P
+        elif command -v dracut &>/dev/null; then
+            echo "Using dracut..."
+            echo "$PASSWORD" | sudo -S dracut --force --regenerate-all
+        else
+            echo "No supported initramfs generator (mkinitcpio/dracut) found. Please regenerate your initramfs manually."
+        fi
+
+        if [ $? -ne 0 ]; then
+            echo "Warning: Initramfs regeneration failed. You may need to regenerate it manually."
+        else
+            echo "Initramfs regenerated successfully!"
+        fi
         echo "Installation completed successfully!"
     fi
 else

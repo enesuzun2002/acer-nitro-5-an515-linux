@@ -405,10 +405,12 @@ MODE=$(cat "$STATE_FILE/current_mode" 2>/dev/null || echo "?")
 BAT=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1 || echo "?")
 AC=$(grep -q 1 /sys/class/power_supply/*/online 2>/dev/null && echo "1" || echo "0")
 PPD_PROFILE=$(powerprofilesctl get 2>/dev/null || echo "?")
+AMD_GPU_DPM=$(cat /sys/class/drm/card*/device/power_dpm_force_performance_level 2>/dev/null | head -n 1 || echo "?")
 
 echo "══════════════════════════════════════════════"
 echo " Mod          : $MODE"
 echo " PPD profili  : $PPD_PROFILE"
+echo " AMD GPU Güç  : $AMD_GPU_DPM"
 echo " Undervolt    : Aktif (CO -20 / 1048556)"
 echo " Batarya      : %$BAT"
 echo " AC           : $([ "$AC" = "1" ] && echo 'Bağlı (35W Sınırı)' || echo 'Bağlı değil')"
