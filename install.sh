@@ -61,10 +61,12 @@ RemainAfterExit=yes
 WantedBy=default.target
 EOF
         systemctl --user daemon-reload
-        systemctl --user enable --now alsa-restore-custom.service > /dev/null 2>&1
         
+        # Enable and start the service, capturing stderr and stdout for debugging
+        SYSTEMD_OUTPUT=$(systemctl --user enable --now alsa-restore-custom.service 2>&1)
         if [ $? -ne 0 ]; then
             echo "Error setting up systemd service!"
+            echo "Debugging Details: $SYSTEMD_OUTPUT"
             exit 1
         else
             echo "Installation completed successfully!"
