@@ -1,59 +1,79 @@
-# Acer Nitro 5 (AN515) Linux Fixes
+# Acer Nitro 5 (AN515) Linux Fixes & Battery Optimizer
 
-This project is dedicated to providing fixes and optimizations for the Acer Nitro 5 (AN515) laptop running Linux. It addresses various issues related to audio, microphone settings, CPU performance, HDMI functionality, and power-saving. Additionally, this guide assumes you are using the "noise-suppression-for-voice" Git project for audio noise suppression and the "auto-cpufreq" project for CPU optimization.
+This repository provides comprehensive fixes and system-level optimizations for the Acer Nitro 5 (AN515) laptop running Linux (fully optimized for CachyOS / Arch Linux, Wayland, and the Niri compositor).
 
-## Audio - Wifi Fixes and Power Management
+Our primary goal is to maximize battery life, configure premium audio, and resolve common hardware issues with a modular, interactive installation script.
 
-To improve audio quality and enable power saving for wifi on your Acer Nitro 5 (AN515) laptop running Linux, follow these steps:
+---
 
-1. **Give necessary permissions to script**:
-    ```bash
-   chmod +x install.sh
-   ```
+## 🚀 Getting Started
 
-2. **Run script**: Run script and answer prompts to add fixes you need.
-   ```bash
-   ./install.sh
-   ```
+The master installation script, [install.sh](file:///home/emurat/Projects/linux/acer-nitro-5-an515-linux/install.sh), is the single, modular entry point. It allows you to select exactly which optimizations you want to apply.
 
-## HDMI Fixes
+### 1. Make the script executable
+```bash
+chmod +x install.sh
+```
 
-If you encounter any issues related to HDMI connectivity on your laptop, copy the folder from "HDMI-Fixes" to the root directory (`/`) and add the following to your kernel command line:
+### 2. Run the interactive installer
+```bash
+./install.sh
+```
 
-   ```bash
-   rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
-   ```
+---
 
-You also need to start a few services to make sure everything works fine (This also enables wayland support for nvidia):
+## 🛠️ Optimizations & Features
 
-   ```bash
-   sudo systemctl enable nvidia-{suspend,resume,hibernate,persistenced}
-   ```
+The installer offers the following modular components:
 
-## Touchpad Gestures
+### 1. Premium Audio & Noise Cancellation
+- **Echo Cancellation & Noise Suppression:** Integrates `webrtc-audio-processing` and `noise-suppression-for-voice` for crystal-clear microphone input. Automated installation uses `paru` on CachyOS (falling back to `pacman`).
+- **ALSA Level Restore:** Adds a custom user-level systemd service (`alsa-restore-custom.service`) that automatically restores your customized alsamixer mic levels on boot, executing reliably after WirePlumber initializations.
+- **Headset Microphone Fix:** Appends optimized kernel modules configurations to `/etc/modprobe.d/alsa-base.conf` to properly route external headset microphones.
 
-For Touchpad gestures to work under X11, you can use a project called Fusuma. First, install the required dependencies for Fusuma and then install Fusuma itself. You can find Fusuma [here](https://github.com/iberianpig/fusuma).
+### 2. Ultimate Battery Optimizer
+Wired directly into `install.sh`, you can optionally set up the **Flutter Dev Battery Optimizer** (`install-battery-optimizer.sh`). This script configures:
+- **Ryzen TDP & Undervolting Control:** Uses `ryzenadj` to dynamically adjust TDP limits and sets a global undervolt curve of `CO -20` across all cores for lower temperatures and power usage.
+- **Dynamic GPU Switching:** Provides optional automated integration with `envycontrol` to lock your Nvidia GPU into `integrated` mode for maximum battery runtime, bypassing discrete GPU power draw.
+- **Hardware Power Savings:** Custom systemd services dynamically manage PCIe ASPM policies, USB autosuspend, AMDGPU performance levels (`low` on battery, `auto` on AC), disk power states, and WiFi power-saving rules via `iw`.
+- **Ananicy-CPP Rules:** Optimizes process priorities for development tools (Dart, Flutter, Java, VS Code, Niri) to maintain performance under resource constraints.
+- **Interactive Mode Profiles:**
+  - `battery-mode` (10W TDP limit, CPU EPP set to `power-saver`, restricted TDP)
+  - `flutter-mode` (25W TDP limit, CPU EPP set to `performance` for compilation speed, active when BAT > 15%)
+  - `ac` (35W TDP limit, CPU EPP set to `balanced` when plugged into AC power)
+- **Monitoring & Status:** Provides a `battery-status` CLI tool to inspect the active profile, TDP configurations, charging state, and current battery level.
+- **Sudoers Integration:** Real-user elevation enables passwordless switching between `flutter-mode`, `battery-mode`, and `battery-status`.
 
-My config file for KDE desktop is located in the "Touchpad-Fixes" directory. Simply copy the contents to your `$HOME` directory. To use my config file you have to install "xdotool" and two other fusuma plugins:
+### 3. Standalone Nvidia Drivers Optimization
+If you choose not to run Nvidia in integrated GPU mode, the installer can apply standalone driver optimizations:
+- Installs power management parameters to `/etc/modprobe.d/` and custom `udev` rules to `/etc/udev/rules.d/` to optimize D3 runtime power states for discrete graphics.
 
-- [fusuma-plugin-wmctrl](https://github.com/iberianpig/fusuma-plugin-wmctrl)
-- [fusuma-plugin-keypress](https://github.com/iberianpig/fusuma-plugin-keypress)
+---
 
+## 📺 HDMI Fixes
 
-## Power Saving
+If you encounter issues with external HDMI output or require full Wayland discrete GPU support, add the following parameters to your kernel command line:
 
-To save additional power on your laptop, you can apply the following settings:
+```bash
+rd.driver.blacklist=nouveau modprobe.blacklist=nouveau nvidia-drm.modeset=1
+```
 
-1. NMI (Non-Maskable Interrupt) watchdog is a feature that periodically checks the system's responsiveness. Disabling it can help save power. To disable add this to kernel command line:
+Enable the necessary Nvidia power and persistence services:
+```bash
+sudo systemctl enable nvidia-{suspend,resume,hibernate,persistenced}
+```
 
-   ```bash
-   nmi_watchdog=0
-   ```
+---
 
-Please note that this project is meant to provide guidance and solutions for common issues faced by Acer Nitro 5 (AN515) laptop users running Linux. It's important to back up your data and exercise caution when making system changes.
+## 🔋 Additional Power Savings
 
-Feel free to contribute to this project by submitting pull requests with additional fixes or improvements to benefit the Acer Nitro 5 (AN515) Linux community.
+You can disable the NMI (Non-Maskable Interrupt) watchdog to save additional CPU cycles and power. Add this parameter to your kernel command line:
 
-## TODO
-- Make the script cover all specific fixes in this repository
-- Add an uninstaller script
+```bash
+nmi_watchdog=0
+```
+
+---
+
+## 📝 TODO
+- Add a unified uninstaller script.

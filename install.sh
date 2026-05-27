@@ -3,6 +3,13 @@
 # Check if the user wants to proceed
 read -p "Do you want enable echo cancelling and noise suppression for voice? (y/n) " -r
 if [[ $REPLY =~ ^[yY]$ ]]; then
+    echo "Installing required packages for echo cancelling and noise suppression..."
+    if command -v paru &>/dev/null; then
+        paru -S --needed --noconfirm webrtc-audio-processing noise-suppression-for-voice
+    else
+        sudo pacman -S --needed --noconfirm webrtc-audio-processing noise-suppression-for-voice
+    fi
+
     # Copy the config file from script's directory to $HOME/.config/
     mkdir -p $HOME/.config/pipewire/pipewire.conf.d/
     cp ./Audio-Fixes/.config/pipewire/pipewire.conf.d/99-input-echo-cancel.conf $HOME/.config/pipewire/pipewire.conf.d/99-input-echo-cancel.conf > /dev/null 2>&1
@@ -33,13 +40,28 @@ if [[ $REPLY =~ ^[yY]$ ]]; then
         echo "Error copying files!"
         exit 1
     else
-        echo "Adding to .profile for loading at each log in..."
-        echo -e "\n# Alsamixer recommended settings by enesuzun2002\nalsactl --file $HOME/.config/asound.state restore" >> $HOME/.profile
+        echo "Creating systemd user service for reliable ALSA restore..."
+        mkdir -p $HOME/.config/systemd/user/
+        cat << 'EOF' > $HOME/.config/systemd/user/alsa-restore-custom.service
+[Unit]
+Description=Restore custom ALSA state for mic
+After=wireplumber.service pipewire.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/alsactl --file %h/.config/asound.state restore
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
+EOF
+        systemctl --user daemon-reload
+        systemctl --user enable --now alsa-restore-custom.service > /dev/null 2>&1
+        
         if [ $? -ne 0 ]; then
-            echo "Error adding to .profile!"
+            echo "Error setting up systemd service!"
             exit 1
         else
-
             echo "Installation completed successfully!"
         fi
     fi
@@ -63,76 +85,24 @@ else
     echo "Installation cancelled."
 fi
 
-read -p "Do you want to disable audio device suspend on idle? (y/n) " -r
+read -p "Do you want to install the new battery optimizer (install-battery-optimizer.sh)? (y/n) " -r
 if [[ $REPLY =~ ^[yY]$ ]]; then
-    echo "Copying files..."
-    mkdir -p $HOME/.config/wireplumber/wireplumber.conf.d
-    cp ./Audio-Fixes/.config/wireplumber/wireplumber.conf.d/alsa.conf $HOME/.config/wireplumber/wireplumber.conf.d/alsa.conf > /dev/null 2>&1
-
-    if [ $? -ne 0 ]; then
-        echo "Error copying files!"
-        exit 1
+    read -p "Do you want to set Nvidia to integrated mode via envycontrol for maximum battery savings? (y/n) " -r
+    if [[ $REPLY =~ ^[yY]$ ]]; then
+        echo "Running battery optimizer with Nvidia set to integrated..."
+        sudo bash ./install-battery-optimizer.sh --integrated
     else
-        echo "Adding configuration to alsa-base.conf..."
-        read -s -p "[sudo] password for $USER: " PASSWORD
-        echo
-        echo $PASSWORD | sudo -S sh -c 'echo "options snd-hda-intel power_save=0" >> /etc/modprobe.d/alsa-base.conf'
-        if [ $? -ne 0 ]; then
-            echo "Error configuration to alsa-base.conf!"
-            exit 1
-        else
-            echo "Installation completed successfully!"
+        echo "Running battery optimizer without touching Nvidia..."
+        sudo bash ./install-battery-optimizer.sh
+        
+        read -p "Do you want to apply Nvidia fixes (power management rules, optimus desktop, etc.) since you are not using integrated mode? (y/n) " -r
+        if [[ $REPLY =~ ^[yY]$ ]]; then
+             echo "Applying Nvidia fixes..."
+             sudo cp -r ./Nvidia/Driver-Parameters/etc/modprobe.d/* /etc/modprobe.d/ 2>/dev/null || true
+             sudo cp -r ./Nvidia/Driver-Parameters/etc/udev/rules.d/* /etc/udev/rules.d/ 2>/dev/null || true
+             echo "Nvidia fixes applied successfully!"
         fi
     fi
 else
-    echo "Installation cancelled."
-fi
-
-read -p "Do you want to enable power saving mode for intel wifi? (y/n) " -r
-if [[ $REPLY =~ ^[yY]$ ]]; then
-    echo "Copying files..."
-    read -s -p "[sudo] password for $USER: " PASSWORD
-    echo
-    echo $PASSWORD | sudo -S cp ./Wifi-Fixes/etc/modprobe.d/* /etc/modprobe.d/ > /dev/null 2>&1
-
-    if [ $? -ne 0 ]; then
-        echo "Error copying files!"
-        exit 1
-    else
-        echo "Installation completed successfully!"
-    fi
-else
-    echo "Installation cancelled."
-fi
-
-read -p "Do you want to enable power management script by enesuzun2002? (y/n) " -r
-if [[ $REPLY =~ ^[yY]$ ]]; then
-    # Copy scripts
-    echo "Copying files..."
-    read -s -p "[sudo] password for $USER: " PASSWORD
-    echo
-
-    # Function to handle sudo commands
-    run_sudo() {
-        echo $PASSWORD | sudo -S $1 > /dev/null 2>&1
-        if [ $? -ne 0 ]; then
-            echo "Error: $2"
-            exit 1
-        fi
-    }
-
-    # Copy files and handle errors
-    run_sudo "cp ./Power-Management/etc/modules-load.d/* /etc/modules-load.d/" "Failed to copy modules-load.d files."
-    run_sudo "cp ./Power-Management/etc/udev/rules.d/* /etc/udev/rules.d/" "Failed to copy udev rules."
-    run_sudo "cp ./Power-Management/usr/lib/systemd/system-sleep/00powersave /usr/lib/systemd/system-sleep/00powersave" "Failed to copy system-sleep script."
-    run_sudo "cp ./Power-Management/usr/local/bin/* /usr/local/bin/" "Failed to copy local bin scripts."
-
-    # Set required permissions for scripts
-    echo "Setting required permissions for scripts..."
-    run_sudo "chmod +x /usr/lib/systemd/system-sleep/00powersave" "Failed to set executable permission for 00powersave."
-    run_sudo "chmod +x /usr/local/bin/power_save.sh" "Failed to set executable permission for power_save.sh."
-
-    echo "Installation completed successfully!"
-else
-    echo "Installation cancelled."
+    echo "Battery optimizer installation skipped."
 fi
