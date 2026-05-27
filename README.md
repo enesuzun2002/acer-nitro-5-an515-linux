@@ -75,5 +75,18 @@ nmi_watchdog=0
 
 ---
 
-## 📝 TODO
-- Add a unified uninstaller script.
+## 🧹 Uninstallation
+
+If you wish to remove any configurations, scripts, or systemd services created by this project, run the interactive uninstaller script:
+
+### 1. Make the script executable
+```bash
+chmod +x uninstall.sh
+```
+
+### 2. Run the interactive uninstaller
+```bash
+./uninstall.sh
+```
+This script allows you to selectively uninstall audio enhancements, ALSA restores, headset mic fixes, discrete Nvidia parameters, or the entire Battery Optimizer toolchain.
+
