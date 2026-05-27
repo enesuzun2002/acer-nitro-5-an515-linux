@@ -54,7 +54,7 @@ After=wireplumber.service pipewire.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/alsactl --file %h/.config/asound.state restore
+ExecStart=-/usr/bin/alsactl -F --file %h/.config/asound.state restore
 RemainAfterExit=yes
 
 [Install]
