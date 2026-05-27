@@ -5,9 +5,14 @@ read -p "Do you want enable echo cancelling and noise suppression for voice? (y/
 if [[ $REPLY =~ ^[yY]$ ]]; then
     echo "Installing required packages for echo cancelling and noise suppression..."
     if command -v paru &>/dev/null; then
-        paru -S --needed --noconfirm webrtc-audio-processing noise-suppression-for-voice
+        paru -Sy --needed --noconfirm webrtc-audio-processing noise-suppression-for-voice
     else
-        sudo pacman -S --needed --noconfirm webrtc-audio-processing noise-suppression-for-voice
+        sudo pacman -Sy --needed --noconfirm webrtc-audio-processing noise-suppression-for-voice
+    fi
+
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to install required packages! Please verify your package manager database sync."
+        exit 1
     fi
 
     # Copy the config file from script's directory to $HOME/.config/
