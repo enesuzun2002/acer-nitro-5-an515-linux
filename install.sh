@@ -36,13 +36,19 @@ else
     echo "Installation cancelled."
 fi
 
-read -p "Do you want to import recommended alsamixer values for mic? (y/n) " -r
+read -p "Do you want to configure and save custom alsamixer values for mic restore on boot? (y/n) " -r
 if [[ $REPLY =~ ^[yY]$ ]]; then
-    echo "Copying files..."
-    cp ./Audio-Fixes/.config/asound.state $HOME/.config/asound.state > /dev/null 2>&1
+    echo "Opening alsamixer..."
+    echo "Instructions: Adjust your microphone levels, capture settings, and mute states. Press ESC to save and close."
+    sleep 2
+    alsamixer
 
+    echo "Saving your custom soundcard state..."
+    mkdir -p $HOME/.config/
+    alsactl --file $HOME/.config/asound.state store
+    
     if [ $? -ne 0 ]; then
-        echo "Error copying files!"
+        echo "Error saving custom ALSA state!"
         exit 1
     else
         echo "Creating systemd user service for reliable ALSA restore..."
@@ -73,7 +79,7 @@ EOF
         fi
     fi
 else
-    echo "Installation cancelled."
+    echo "Custom ALSA restore configuration cancelled."
 fi
 
 read -p "Do you want to add fix for headset-mic? (y/n) " -r
