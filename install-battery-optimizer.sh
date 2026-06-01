@@ -165,7 +165,7 @@ for card in /sys/class/drm/card*/device/power_dpm_force_performance_level; do
 done
 
 for dev in /sys/bus/pci/devices/*/power/control; do
-    echo on > "$dev" 2>/dev/null || true
+    echo auto > "$dev" 2>/dev/null || true
 done
 
 for iface in /sys/class/net/wl*; do
@@ -239,7 +239,7 @@ Description=Ryzen TDP & Undervolt & PPD — AC (35W + CO -20)
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/ryzenadj --stapm-limit=35000 --fast-limit=35000 --slow-limit=35000 --tctl-temp=85 --set-coall=1048556
+ExecStart=/usr/bin/ryzenadj --stapm-limit=25000 --fast-limit=35000 --slow-limit=30000 --tctl-temp=75 --set-coall=1048556
 ExecStartPost=-/usr/bin/powerprofilesctl set balanced
 ExecStartPost=/usr/bin/bash -c 'echo ac > /var/lib/battery-optimizer/current_mode'
 EOF
@@ -277,7 +277,7 @@ case "$MODE" in
         /usr/local/bin/hw-power-battery
         ;;
     ac)
-        ryzenadj --stapm-limit=35000 --fast-limit=35000 --slow-limit=35000 --tctl-temp=85 --set-coall=1048556 >> "$LOG" 2>&1 || true
+        ryzenadj --stapm-limit=25000 --fast-limit=35000 --slow-limit=30000 --tctl-temp=75 --set-coall=1048556 >> "$LOG" 2>&1 || true
         powerprofilesctl set balanced >> "$LOG" 2>&1 || true
         /usr/local/bin/hw-power-ac
         ;;
@@ -336,7 +336,7 @@ CURRENT=$(cat "$STATE_FILE" 2>/dev/null || echo "battery")
 if [[ "$CURRENT" == "flutter" ]]; then exit 0; fi
 
 log "flutter-mode (25W TDP, CO -20, performance EPP) aktifleştiriliyor..."
-ryzenadj --stapm-limit=20000 --fast-limit=25000 --slow-limit=20000 --tctl-temp=85 --set-coall=1048556 >> "$LOG" 2>&1 || exit 1
+ryzenadj --stapm-limit=20000 --fast-limit=25000 --slow-limit=20000 --tctl-temp=75 --set-coall=1048556 >> "$LOG" 2>&1 || exit 1
 powerprofilesctl set performance >> "$LOG" 2>&1 || true
 
 cat << 'EOF' > /etc/ananicy.d/99-flutter-dev.rules
